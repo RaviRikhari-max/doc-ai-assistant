@@ -10,7 +10,7 @@ from langchain_community.document_loaders import (
 from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
--text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 # Page Config
 st.set_page_config(page_title="AI Document Assistant", page_icon="📚", layout="centered")
@@ -39,12 +39,10 @@ with st.sidebar:
 def process_documents(files):
     docs = []
     for file in files:
-        # Save temporarily to disk to let loaders read them
         file_path = os.path.join(".", file.name)
         with open(file_path, "wb") as f:
             f.write(file.getbuffer())
 
-        # Load based on extension
         if file.name.endswith(".pdf"):
             loader = PyPDFLoader(file_path)
             docs.extend(loader.load())
@@ -55,19 +53,15 @@ def process_documents(files):
             loader = TextLoader(file_path)
             docs.extend(loader.load())
 
-        # Clean up local file
         os.remove(file_path)
 
-    # Split documents into chunks
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     splits = text_splitter.split_documents(docs)
 
-    # Create embeddings and vector store
     embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
     vectorstore = FAISS.from_documents(splits, embeddings)
     return vectorstore.as_retriever()
 
-# Initialize session state for conversation
 if "vectorstore_retriever" not in st.session_state:
     st.session_state.vectorstore_retriever = None
 
@@ -76,7 +70,6 @@ if process_button and uploaded_files:
         st.session_state.vectorstore_retriever = process_documents(uploaded_files)
         st.success("Documents processed successfully! You can now start asking questions.")
 
-# Chat interface
 if st.session_state.vectorstore_retriever:
     query = st.text_input("Ask a question about your documents:")
     
