@@ -1,6 +1,5 @@
 import os
 import streamlit as st
-from langchain.chains import create_qa_with_source_chain
 from langchain_community.document_loaders import (
     Docx2txtLoader,
     PyPDFLoader,
