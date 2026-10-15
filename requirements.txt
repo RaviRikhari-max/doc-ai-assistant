@@ -1,7 +1,9 @@
 streamlit
 langchain
-langchain-openai
+langchain-core
 langchain-community
+langchain-openai
+langchain-text-splitters
 pypdf
 docx2txt
 faiss-cpu
